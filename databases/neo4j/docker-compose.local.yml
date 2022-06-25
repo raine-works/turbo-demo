@@ -1,0 +1,16 @@
+version: '3.9'
+
+services:
+  neo4j: 
+    image: neo4j:4.4.7-community
+    ports: 
+      - 7888:7474
+      - 7999:7687
+    restart: unless-stopped
+    environment:
+      - NEO4J_AUTH=neo4j/localpass
+    volumes: 
+      - ./data:/data
+      - ./conf:/conf
+      - ./logs:/logs
+      - ./plugins:/plugins

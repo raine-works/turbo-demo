@@ -1,0 +1,19 @@
+{
+	"name": "turbo-demo",
+	"version": "0.0.0",
+	"private": true,
+	"scripts": {
+		"build": "turbo run build",  
+		"dev": "turbo run dev", 
+		"dev:local": "turbo run local-db && turbo run dev:local"
+	},
+	"workspaces": [
+		"apps/*",
+		"databases/*",
+		"packages/*"
+	],
+	"devDependencies": {
+		"rimraf": "^3.0.2",
+		"turbo": "^1.2.16"
+	}
+}

@@ -1,0 +1,8 @@
+node_modules
+.build
+.turbo
+.env
+
+# Database
+databases/neo4j/data
+databases/neo4j/logs
