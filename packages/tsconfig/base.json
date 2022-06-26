@@ -20,6 +20,7 @@
 		"resolveJsonModule": true,
 		"skipLibCheck": true,
 		"strict": true,
+		"noEmit": false,
 		"typeRoots": ["../../node_modules/@types"]
 	}
 }
