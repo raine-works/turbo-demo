@@ -5,7 +5,6 @@
 	"compilerOptions": {
 		"target": "es6",
 		"noEmit": false,
-		"module": "commonjs",
-		"sourceMap": true
+		"module": "commonjs"
 	}
 }
