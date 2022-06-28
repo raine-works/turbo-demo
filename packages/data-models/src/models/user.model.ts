@@ -14,7 +14,12 @@ export default class User {
 	first_name: string
 	last_name: string
 	email: string
-	__password: string
+	password: string
+
+	static settings = {
+		uniqueProps: ['email'],
+		privateProps: ['password'],
+	}
 
 	constructor(args: UserArgs) {
 		this._id = crypto.randomUUID()
@@ -22,7 +27,7 @@ export default class User {
 		this.first_name = args.first_name
 		this.last_name = args.last_name
 		this.email = args.email
-		this.__password = this.hash(args.password)
+		this.password = this.hash(args.password)
 	}
 
 	// Hash password

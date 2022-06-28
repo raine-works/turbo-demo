@@ -5,7 +5,7 @@
 	"scripts": {
 		"build": "turbo run build",  
 		"dev": "turbo run dev", 
-		"dev:local": "turbo run local-db && turbo run dev:local"
+		"dev:local": "turbo run local-db:start && turbo run dev:local"
 	},
 	"workspaces": [
 		"apps/*",

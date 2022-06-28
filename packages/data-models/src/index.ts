@@ -5,7 +5,6 @@ interface Credentials {
 	username: string
 	password: string
 }
-
 interface Model {
 	[key: string]: any
 }
@@ -18,8 +17,8 @@ interface Query {
 interface QueryOptions {
 	showPrivateProps?: boolean
 }
-
 export default class DB {
+	[key: string]: any
 	get User() {
 		return User
 	}
@@ -65,7 +64,11 @@ export default class DB {
 
 			// Properties that are prepended with # are secret and should not be returned to the client
 			for (let prop in record) {
-				if (prop.includes('__')) {
+				if (
+					this[model.constructor.name].settings.privateProps.includes(
+						prop
+					)
+				) {
 					delete record[prop]
 				}
 			}
@@ -79,7 +82,7 @@ export default class DB {
 	}
 
 	// Query record
-	async get(query: Query, options?: QueryOptions) {
+	async get(modelName: string, query: Query, options?: QueryOptions) {
 		const session = await this._connection.session()
 		let queryMap: string = '{'
 		for (let prop of Object.keys(query)) {
@@ -94,7 +97,7 @@ export default class DB {
 			}
 		}
 		let results = await session.run(
-			`MATCH(n:User ${queryMap}) RETURN n`,
+			`MATCH(n:${modelName} ${queryMap}) RETURN n`,
 			query
 		)
 		session.close()
@@ -103,7 +106,7 @@ export default class DB {
 
 			if (!options?.showPrivateProps) {
 				for (let prop in record) {
-					if (prop.includes('__')) {
+					if (this[modelName].settings.privateProps.includes(prop)) {
 						delete record[prop]
 					}
 				}

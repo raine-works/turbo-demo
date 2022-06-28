@@ -39,7 +39,7 @@ app.post(
 
 app.get('/users/:email', async (req: Request, res: Response) => {
 	try {
-		const user = await db.get(req.params)
+		const user = await db.get('User', req.params)
 		if (user.length > 0) {
 			res.status(200).json(user)
 		} else {
@@ -49,6 +49,22 @@ app.get('/users/:email', async (req: Request, res: Response) => {
 		res.status(500).json({ error: err.message })
 	}
 })
+
+// Create new user account
+app.post(
+	'/signup',
+	validate(schemas.new_user, 'body'),
+	async (req: Request, res: Response) => {
+		try {
+		} catch (err: any) {
+			res.status(500).json({ error: err.message })
+		}
+	}
+)
+
+// Authenticate user
+
+// Logout user
 
 // Catch all route
 app.use((req: Request, res: Response) => {

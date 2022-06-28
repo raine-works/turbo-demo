@@ -23,5 +23,9 @@
         "neo4j-driver": "^4.4.5",
         "req-schema": "*", 
         "data-models": "*"
-    }
+    }, 
+    "bundledDependencies": [
+        "req-schema", 
+        "data-models"
+    ]
 }

@@ -16,7 +16,7 @@
         "dev:local": {
             "cache": false
         }, 
-        "local-db": {
+        "local-db:start": {
             "cache": false
         }
     }
