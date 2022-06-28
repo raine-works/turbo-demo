@@ -14,6 +14,10 @@ interface Query {
 	[key: string]: any
 }
 
+export interface ResponseBody {
+	status: number
+	data: any
+}
 interface QueryOptions {
 	showPrivateProps?: boolean
 }
@@ -31,92 +35,132 @@ export default class DB {
 		)
 	}
 
-	// Insert record into database and return record
-	async insert(model: Model) {
+	/**
+	 * Insert object model into database
+	 * @param model
+	 * @returns object
+	 */
+	async insert(model: Model): Promise<ResponseBody> {
 		// Create a transaction session
 		const session = await this._connection.session()
 
-		// Create query string
-		let dataMap: string = '{'
-		for (let prop of Object.keys(model)) {
-			dataMap += `${prop}:$${prop}`
-			if (
-				Object.keys(model).indexOf(prop) ===
-				Object.keys(model).length - 1
-			) {
-				dataMap += '}'
-			} else {
-				dataMap += ', '
+		// Check for duplicate uniqie properties
+		const uniqueProps: Array<string> =
+			this[model.constructor.name].settings.uniqueProps
+		let uniquePropsQuery: any = {}
+		for (let prop of uniqueProps) {
+			uniquePropsQuery[prop] = model[prop]
+		}
+		if (uniqueProps.length > 0) {
+			const queryResults = await session.run(
+				`MATCH(n:${model.constructor.name} ${generateDataMap(
+					uniquePropsQuery
+				)}) RETURN n`,
+				uniquePropsQuery
+			)
+			const queryRecords = queryResults.records.map((e) => {
+				return e.get('n').properties
+			})
+			if (queryRecords.length > 0) {
+				return <ResponseBody>{
+					status: 400,
+					data: `${uniqueProps.join(', ')} must be a unique value.`,
+				}
 			}
 		}
 
 		// Insert record into database
-		const results = await session.run(
-			`CREATE(n:${model.constructor.name} ${dataMap}) RETURN n`,
+		const insertResults = await session.run(
+			`CREATE(n:${model.constructor.name} ${generateDataMap(
+				model
+			)}) RETURN n`,
 			model
 		)
 
 		// Close session with database
 		session.close()
 
-		return results.records.map((e) => {
-			const record = e.get('n').properties
+		return <ResponseBody>{
+			status: 200,
+			data: insertResults.records.map((e) => {
+				const record = e.get('n').properties
 
-			// Properties that are prepended with # are secret and should not be returned to the client
-			for (let prop in record) {
-				if (
-					this[model.constructor.name].settings.privateProps.includes(
-						prop
-					)
-				) {
-					delete record[prop]
-				}
-			}
-			return Object.keys(record)
-				.sort()
-				.reduce(
-					(res: any, key: string) => ((res[key] = record[key]), res),
-					{}
-				)
-		})[0]
-	}
-
-	// Query record
-	async get(modelName: string, query: Query, options?: QueryOptions) {
-		const session = await this._connection.session()
-		let queryMap: string = '{'
-		for (let prop of Object.keys(query)) {
-			queryMap += `${prop}:$${prop}`
-			if (
-				Object.keys(query).indexOf(prop) ===
-				Object.keys(query).length - 1
-			) {
-				queryMap += '}'
-			} else {
-				queryMap += ', '
-			}
-		}
-		let results = await session.run(
-			`MATCH(n:${modelName} ${queryMap}) RETURN n`,
-			query
-		)
-		session.close()
-		return results.records.map((e) => {
-			const record = e.get('n').properties
-
-			if (!options?.showPrivateProps) {
+				// Properties that are prepended with # are secret and should not be returned to the client
 				for (let prop in record) {
-					if (this[modelName].settings.privateProps.includes(prop)) {
+					if (
+						this[
+							model.constructor.name
+						].settings.privateProps.includes(prop)
+					) {
 						delete record[prop]
 					}
 				}
-			}
-			return Object.keys(record)
-				.sort()
-				.reduce(
-					(res: any, key: string) => ((res[key] = record[key]), res),
-					{}
-				)
-		})
+				return Object.keys(record)
+					.sort()
+					.reduce(
+						(res: any, key: string) => (
+							(res[key] = record[key]), res
+						),
+						{}
+					)
+			})[0],
+		}
 	}
+
+	/**
+	 * Query database for nodes
+	 * @param modelName string
+	 * @param query object
+	 * @param options object
+	 * @returns array<object>
+	 */
+	async get(
+		modelName: string,
+		query: Query,
+		options?: QueryOptions
+	): Promise<ResponseBody> {
+		const session = await this._connection.session()
+		let results = await session.run(
+			`MATCH(n:${modelName} ${generateDataMap(query)}) RETURN n`,
+			query
+		)
+		session.close()
+		return <ResponseBody>{
+			status: 200,
+			data: results.records.map((e) => {
+				const record = e.get('n').properties
+
+				if (!options?.showPrivateProps) {
+					for (let prop in record) {
+						if (
+							this[modelName].settings.privateProps.includes(prop)
+						) {
+							delete record[prop]
+						}
+					}
+				}
+				return Object.keys(record)
+					.sort()
+					.reduce(
+						(res: any, key: string) => (
+							(res[key] = record[key]), res
+						),
+						{}
+					)
+			}),
+		}
+	}
+}
+
+function generateDataMap(obj: any) {
+	let dataMap: string = '{'
+	for (let prop of Object.keys(obj)) {
+		dataMap += `${prop}:$${prop}`
+		if (Object.keys(obj).indexOf(prop) === Object.keys(obj).length - 1) {
+			dataMap += '}'
+		} else {
+			dataMap += ', '
+		}
+	}
+	return dataMap
 }

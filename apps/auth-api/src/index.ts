@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express'
 import cors from 'cors'
 import { schemas, validate } from './schemas'
-import DB from 'data-models'
+import DB, { ResponseBody } from 'data-models'
 
 const app = express()
 app.use(express.json())
@@ -29,8 +29,8 @@ app.post(
 	validate(schemas.new_user, 'body'),
 	async (req: Request, res: Response) => {
 		try {
-			const user = await db.insert(new db.User(req.body))
-			res.status(200).json(user)
+			const user: ResponseBody = await db.insert(new db.User(req.body))
+			res.status(user.status).json(user.data)
 		} catch (err: any) {
 			res.status(500).json({ error: err.message })
 		}
@@ -39,9 +39,9 @@ app.post(
 
 app.get('/users/:email', async (req: Request, res: Response) => {
 	try {
-		const user = await db.get('User', req.params)
-		if (user.length > 0) {
-			res.status(200).json(user)
+		const user: ResponseBody = await db.get('User', req.params)
+		if (user.data.length > 0) {
+			res.status(user.status).json(user.data)
 		} else {
 			res.redirect('/404')
 		}
