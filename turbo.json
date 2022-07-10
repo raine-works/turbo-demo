@@ -10,6 +10,9 @@
                 ".build/**"
             ]
         },
+        "docker": {
+            "cache": true
+        },
         "dev": {
             "cache": false
         }, 

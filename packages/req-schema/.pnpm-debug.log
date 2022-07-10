@@ -1,0 +1,21 @@
+{
+  "0 debug pnpm:scope": {
+    "selected": 1,
+    "workspacePrefix": "/home/raine/projects/tubro-demo"
+  },
+  "1 error pnpm": {
+    "errno": 2,
+    "code": "ELIFECYCLE",
+    "pkgid": "req-schema@0.0.0",
+    "stage": "build",
+    "script": "rimraf .build && tsc -p .",
+    "pkgname": "req-schema",
+    "err": {
+      "name": "pnpm",
+      "message": "req-schema@0.0.0 build: `rimraf .build && tsc -p .`\nExit status 2",
+      "code": "ELIFECYCLE",
+      "stack": "pnpm: req-schema@0.0.0 build: `rimraf .build && tsc -p .`\nExit status 2\n    at EventEmitter.<anonymous> (/home/raine/.nvm/versions/node/v17.9.0/lib/node_modules/pnpm/dist/pnpm.cjs:106739:20)\n    at EventEmitter.emit (node:events:527:28)\n    at ChildProcess.<anonymous> (/home/raine/.nvm/versions/node/v17.9.0/lib/node_modules/pnpm/dist/pnpm.cjs:93308:18)\n    at ChildProcess.emit (node:events:527:28)\n    at maybeClose (node:internal/child_process:1090:16)\n    at Process.ChildProcess._handle.onexit (node:internal/child_process:302:5)"
+    }
+  },
+  "2 warn pnpm:global": " Local package.json exists, but node_modules missing, did you mean to install?"
+}

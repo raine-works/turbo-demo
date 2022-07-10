@@ -3,8 +3,9 @@
 	"version": "0.0.0",
 	"private": true,
 	"scripts": {
-		"build": "turbo run build",  
-		"dev": "turbo run dev", 
+		"build": "turbo run build",
+		"docker": "turbo run docker",
+		"dev": "turbo run dev",
 		"dev:local": "turbo run local-db:start && turbo run dev:local"
 	},
 	"workspaces": [
@@ -13,6 +14,8 @@
 		"packages/*"
 	],
 	"devDependencies": {
+		"@auto-it/docker": "^10.37.1",
+		"auto": "^10.37.1",
 		"rimraf": "^3.0.2",
 		"turbo": "^1.2.16"
 	}
